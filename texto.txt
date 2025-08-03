@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <title>Controle Raspadinha</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin:20px; }
+    table { border-collapse: collapse; width:100%; }
+    th, td { border:1px solid #ccc; padding:8px; text-align:left; }
+    th { background:#f4f4f4; }
+    input, select { width:100%; box-sizing: border-box; padding:4px; }
+    .save-btn { margin-top:10px; padding:10px 20px; }
+  </style>
+</head>
+<body>
+  <h1>Controle Raspadinha “Sorte Total de Milhões”</h1>
+  <table id="tabela">
+    <thead>
+      <tr>
+        <th>Nº</th><th>Nome</th><th>Comprovativo</th><th>Data/Hora</th><th>Status do Prêmio</th><th>Observações</th>
+      </tr>
+    </thead>
+    <tbody>
+    <!-- Linhas geradas via JavaScript -->
+    </tbody>
+  </table>
+  <button class="save-btn" onclick="salvar()">Salvar Tudo</button>
+
+<script>
+  const NUM_MAX = 150;
+  const STORAGE_KEY = 'raspadinha_data';
+  let data = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+
+  function criarTabela() {
+    const tbody = document.querySelector('#tabela tbody');
+    tbody.innerHTML = '';
+    for (let i = 1; i <= NUM_MAX; i++) {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${i}</td>
+        <td><input type="text" data-num="${i}" data-field="nome" value="${data[i]?.nome||''}"></td>
+        <td><input type="text" data-num="${i}" data-field="comprovativo" value="${data[i]?.comprovativo||''}"></td>
+        <td><input type="text" data-num="${i}" data-field="dataHora" value="${data[i]?.dataHora||''}"></td>
+        <td>
+          <select data-num="${i}" data-field="status">
+            <option value="">--</option>
+            <option value="Ganhou" ${data[i]?.status==='Ganhou'?'selected':''}>Ganhou</option>
+            <option value="Não ganhou" ${data[i]?.status==='Não ganhou'?'selected':''}>Não ganhou</option>
+          </select>
+        </td>
+        <td><input type="text" data-num="${i}" data-field="obs" value="${data[i]?.obs||''}"></td>
+      `;
+      tbody.appendChild(row);
+    }
+    adicionarListeners();
+  }
+
+  function adicionarListeners() {
+    document.querySelectorAll('input, select').forEach(el => {
+      el.addEventListener('change', evt => {
+        const num = evt.target.dataset.num;
+        const field = evt.target.dataset.field;
+        data[num] = data[num] || {};
+        data[num][field] = evt.target.value;
+      });
+    });
+  }
+
+  function salvar() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    alert('Dados salvos com sucesso!');
+  }
+
+  criarTabela();
+</script>
+</body>
+</html>
